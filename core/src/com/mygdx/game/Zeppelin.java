@@ -12,7 +12,7 @@ public class Zeppelin {
     private float windX;
     private float windY;
 
-    // Adjust this factor to increase wind effect
+
     private final float windEffectMultiplier = 5.0f;
 
     public Zeppelin(float x, float y, float width, float height, float maxSpeed, float acceleration, float deceleration) {

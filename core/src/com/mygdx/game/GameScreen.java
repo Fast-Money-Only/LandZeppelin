@@ -28,13 +28,11 @@ public class GameScreen implements Screen {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 600);
 
-        // Initialize the Zeppelin
+
         zeppelin = new Zeppelin(400, 300, 128, 64, 60, 30, 30);
 
-        // Initialize wind with random direction and strength
-        //windX = MathUtils.random(-25, 25); // Random wind strength between -50 and 50
         windX = MathUtils.random(-4,4);
-        windY = 0; // No vertical wind for simplicity
+        windY = 0;
     }
 
     @Override
@@ -48,7 +46,6 @@ public class GameScreen implements Screen {
         boolean moveUp = Gdx.input.isKeyPressed(Keys.UP);
         boolean moveDown = Gdx.input.isKeyPressed(Keys.DOWN);
 
-        // Apply wind effect in the update
         zeppelin.setWind(windX, windY);
         zeppelin.update(delta, moveLeft, moveRight, moveUp, moveDown);
 
