@@ -1,29 +1,23 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
 public class Zeppelin {
     private Rectangle bounds;
+    private Vector2 velocity;
     private float maxSpeed;
     private float acceleration;
     private float deceleration;
-    private float velocityX;
-    private float velocityY;
     private float windX;
     private float windY;
 
-
-    private final float windEffectMultiplier = 5.0f;
-
     public Zeppelin(float x, float y, float width, float height, float maxSpeed, float acceleration, float deceleration) {
-        bounds = new Rectangle(x, y, width, height);
+        this.bounds = new Rectangle(x, y, width, height);
+        this.velocity = new Vector2(0, 0);
         this.maxSpeed = maxSpeed;
         this.acceleration = acceleration;
         this.deceleration = deceleration;
-        this.velocityX = 0;
-        this.velocityY = 0;
-        this.windX = 0;
-        this.windY = 0;
     }
 
     public void setWind(float windX, float windY) {
@@ -31,46 +25,59 @@ public class Zeppelin {
         this.windY = windY;
     }
 
+    public Rectangle getBounds() {
+        return bounds;
+    }
+
+    public Vector2 getVelocity() {
+        return velocity;
+    }
+
     public void update(float delta, boolean moveLeft, boolean moveRight, boolean moveUp, boolean moveDown) {
         if (moveLeft) {
-            velocityX -= acceleration * delta;
+            velocity.x = Math.max(velocity.x - acceleration * delta, -maxSpeed);
         } else if (moveRight) {
-            velocityX += acceleration * delta;
+            velocity.x = Math.min(velocity.x + acceleration * delta, maxSpeed);
         } else {
-            if (velocityX > 0) {
-                velocityX -= deceleration * delta;
-            } else if (velocityX < 0) {
-                velocityX += deceleration * delta;
-            }
+            velocity.x = applyDeceleration(velocity.x, delta);
         }
 
         if (moveUp) {
-            velocityY += acceleration * delta;
+            velocity.y = Math.min(velocity.y + acceleration * delta, maxSpeed);
         } else if (moveDown) {
-            velocityY -= acceleration * delta;
+            velocity.y = Math.max(velocity.y - acceleration * delta, -maxSpeed);
         } else {
-            if (velocityY > 0) {
-                velocityY -= deceleration * delta;
-            } else if (velocityY < 0) {
-                velocityY += deceleration * delta;
-            }
+            velocity.y = applyDeceleration(velocity.y, delta);
         }
 
         // Apply wind effect
-        velocityX += windX * windEffectMultiplier * delta;
-        velocityY += windY * windEffectMultiplier * delta;
+        velocity.x += windX * delta;
+        velocity.y += windY * delta;
 
-        // Clamp velocities to max speed
-        if (velocityX > maxSpeed) velocityX = maxSpeed;
-        if (velocityX < -maxSpeed) velocityX = -maxSpeed;
-        if (velocityY > maxSpeed) velocityY = maxSpeed;
-        if (velocityY < -maxSpeed) velocityY = -maxSpeed;
-
-        bounds.x += velocityX * delta;
-        bounds.y += velocityY * delta;
+        // Update position
+        bounds.x += velocity.x * delta;
+        bounds.y += velocity.y * delta;
     }
 
-    public Rectangle getBounds() {
-        return bounds;
+    private float applyDeceleration(float velocity, float delta) {
+        if (velocity > 0) {
+            velocity = Math.max(velocity - deceleration * delta, 0);
+        } else if (velocity < 0) {
+            velocity = Math.min(velocity + deceleration * delta, 0);
+        }
+        return velocity;
+    }
+
+    public boolean isLandingSuccessful() {
+        // Assume a successful landing requires x position > 300 and y position < 10, and speed is below a threshold
+        return bounds.x < 300 && bounds.y < 10 && velocity.len() < 10;
+    }
+
+    public boolean isLandingTooFast() {
+        return velocity.len() >= 10;
+    }
+
+    public boolean isLandingTooEarly() {
+        return bounds.x <= 300;
     }
 }

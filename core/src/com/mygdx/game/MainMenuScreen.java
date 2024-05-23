@@ -67,6 +67,4 @@ public class MainMenuScreen implements Screen {
     }
 
 
-    //...Rest of class omitted for succinctness.
-
 }

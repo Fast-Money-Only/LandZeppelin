@@ -16,6 +16,8 @@ public class GameScreen implements Screen {
     Zeppelin zeppelin;
     float windX;
     float windY;
+    boolean gameWon = false;
+    boolean gameLost = false;
 
     public GameScreen(final GameZep game) {
         this.game = game;
@@ -24,14 +26,12 @@ public class GameScreen implements Screen {
         zepImage = new Texture(Gdx.files.internal("zeppelin.png"));
         background = new Texture(Gdx.files.internal("zeplandbackground.png"));
 
-
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 600);
 
+        zeppelin = new Zeppelin(400, 300, 192, 64, 60, 30, 30);
 
-        zeppelin = new Zeppelin(400, 300, 128, 64, 60, 30, 30);
-
-        windX = MathUtils.random(-4,4);
+        windX = MathUtils.random(-4, 4);
         windY = 0;
     }
 
@@ -41,23 +41,42 @@ public class GameScreen implements Screen {
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
 
-        boolean moveLeft = Gdx.input.isKeyPressed(Keys.LEFT);
-        boolean moveRight = Gdx.input.isKeyPressed(Keys.RIGHT);
-        boolean moveUp = Gdx.input.isKeyPressed(Keys.UP);
-        boolean moveDown = Gdx.input.isKeyPressed(Keys.DOWN);
+        if (!gameWon && !gameLost) {
+            boolean moveLeft = Gdx.input.isKeyPressed(Keys.LEFT);
+            boolean moveRight = Gdx.input.isKeyPressed(Keys.RIGHT);
+            boolean moveUp = Gdx.input.isKeyPressed(Keys.UP);
+            boolean moveDown = Gdx.input.isKeyPressed(Keys.DOWN);
 
-        zeppelin.setWind(windX, windY);
-        zeppelin.update(delta, moveLeft, moveRight, moveUp, moveDown);
+            zeppelin.setWind(windX, windY);
+            zeppelin.update(delta, moveLeft, moveRight, moveUp, moveDown);
+
+            // Check landing conditions
+            if (zeppelin.getBounds().y < 10) {
+                if (zeppelin.isLandingSuccessful()) {
+                    gameWon = true;
+                } else {
+                    gameLost = true;
+                }
+            }
+        }
 
         game.batch.begin();
-        game.batch.draw(background,0,0, camera.viewportWidth, camera.viewportHeight);
+        game.batch.draw(background, 0, 0, camera.viewportWidth, camera.viewportHeight);
         game.batch.draw(zepImage, zeppelin.getBounds().x, zeppelin.getBounds().y, zeppelin.getBounds().width, zeppelin.getBounds().height);
         game.font.draw(game.batch, "Wind speed: " + windX, 0, 480);
-        game.batch.end();
+        game.font.draw(game.batch, "Current speed: " + zeppelin.getVelocity().len(), 0, 460);
 
-        if(zeppelin.getBounds().y < 10 && zeppelin.getBounds().x > 300){
-            zeppelin.getBounds().y = 400;
+        if (gameWon) {
+            game.font.draw(game.batch, "Landing successful! You win!", 300, 300);
+        } else if (gameLost) {
+            if (zeppelin.isLandingTooFast()) {
+                game.font.draw(game.batch, "Landing failed! Too fast!", 300, 300);
+            } else if (zeppelin.isLandingTooEarly()) {
+                game.font.draw(game.batch, "Landing failed! Too early!", 300, 300);
+            }
         }
+
+        game.batch.end();
     }
 
     @Override
@@ -83,6 +102,6 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         zepImage.dispose();
+        background.dispose();
     }
 }
-
