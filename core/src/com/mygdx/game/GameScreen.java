@@ -22,7 +22,7 @@ public class GameScreen implements Screen {
     public GameScreen(final GameZep game) {
         this.game = game;
 
-        // Load images
+
         zepImage = new Texture(Gdx.files.internal("zeppelin.png"));
         background = new Texture(Gdx.files.internal("zeplandbackground.png"));
 
@@ -50,7 +50,7 @@ public class GameScreen implements Screen {
             zeppelin.setWind(windX, windY);
             zeppelin.update(delta, moveLeft, moveRight, moveUp, moveDown);
 
-            // Check landing conditions
+
             if (zeppelin.getBounds().y < 10) {
                 if (zeppelin.isLandingSuccessful()) {
                     gameWon = true;
@@ -63,16 +63,18 @@ public class GameScreen implements Screen {
         game.batch.begin();
         game.batch.draw(background, 0, 0, camera.viewportWidth, camera.viewportHeight);
         game.batch.draw(zepImage, zeppelin.getBounds().x, zeppelin.getBounds().y, zeppelin.getBounds().width, zeppelin.getBounds().height);
-        game.font.draw(game.batch, "Wind speed: " + windX, 0, 480);
-        game.font.draw(game.batch, "Current speed: " + zeppelin.getVelocity().len(), 0, 460);
+        game.font.draw(game.batch, "Vind hastighed: " + windX, 0, 480);
+        game.font.draw(game.batch, "Zeppelin fart: " + zeppelin.getVelocity().len(), 0, 460);
+        game.font.draw(game.batch, "Husk ikke lande med mere end 15 fart", 0, 420);
+
 
         if (gameWon) {
-            game.font.draw(game.batch, "Landing successful! You win!", 300, 300);
+            game.font.draw(game.batch, "Landing successful!  Du vinder!", 300, 300);
         } else if (gameLost) {
             if (zeppelin.isLandingTooFast()) {
-                game.font.draw(game.batch, "Landing failed! Too fast!", 300, 300);
+                game.font.draw(game.batch, "Landing fejlede! For hurtigt!", 300, 300);
             } else if (zeppelin.isLandingTooEarly()) {
-                game.font.draw(game.batch, "Landing failed! Too early!", 300, 300);
+                game.font.draw(game.batch, "Landing fejlede! For tidlig!", 300, 300);
             }
         }
 

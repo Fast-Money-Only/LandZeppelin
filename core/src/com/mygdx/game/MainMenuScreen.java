@@ -3,11 +3,14 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class MainMenuScreen implements Screen {
 
     final GameZep game;
+
+    Texture background;
 
     OrthographicCamera camera;
 
@@ -15,7 +18,7 @@ public class MainMenuScreen implements Screen {
         this.game = game;
 
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
+        camera.setToOrtho(false, 1024, 1024);
     }
 
     @Override
@@ -27,12 +30,13 @@ public class MainMenuScreen implements Screen {
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0.2f, 1);
 
+        background = new Texture(Gdx.files.internal("landZepSpil.png"));
+
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.font.draw(game.batch, "Welcome to Drop!!! ", 100, 150);
-        game.font.draw(game.batch, "Tap anywhere to begin!", 100, 100);
+        game.batch.draw(background,0, 0, camera.viewportWidth, camera.viewportHeight);
         game.batch.end();
 
         if (Gdx.input.isTouched()) {
